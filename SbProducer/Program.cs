@@ -51,7 +51,7 @@ namespace SbProducer
             {
                 var body = $"Message {count++}";
                 message = new BrokeredMessage(body);
-                client.Send(message);
+                client.SendAsync(message);
 
                 Console.WriteLine($"Sent {message.MessageId}");
                 lastKey = Console.ReadKey().KeyChar;
@@ -66,14 +66,19 @@ namespace SbProducer
             var lastKey = ' ';
             var count = 0;
 
+            Byte[] messageBodyBytes;
+
             while (lastKey != 'q')
             {
-                var messageBodyBytes = System.Text.Encoding.UTF8.GetBytes($"Hello, world {++count}");
+                messageBodyBytes = System.Text.Encoding.UTF8.GetBytes($"Hello, world {++count}");
                 _model.BasicPublish("", QueueName, null, messageBodyBytes);
 
                 Console.WriteLine($"Sent {count}");
                 lastKey = Console.ReadKey().KeyChar;
             }
+
+            messageBodyBytes = System.Text.Encoding.UTF8.GetBytes("quit");
+            _model.BasicPublish("", QueueName, null, messageBodyBytes);
         }
 
         private static void CreateRabbitMessageQueue()
